@@ -1,28 +1,17 @@
-/*
-module splitmix(out,clk);
-   input clk;
-//modified Splitmix64 for 32 bits
 
-   output [31:0] out ;
 
-   wire [63:0]out_64 ;
- 
-   reg [63:0] 	 z=0 ;
+module defB(ran,reset,clk,addrbB,doutbB,wrB_done);
 
-   always@(posedge clk) begin
-   
-      z= z+ 64'h9e3779b97f4a7c15 ;
-      z = (z ^ (z >> 30)) * 64'hbf58476d1ce4e5b9;
-	z = (z ^ (z >> 27)) * 64'h94d049bb133111eb;
-   end
-
-   assign out_64 = z^(z>>31);
-   assign out=out_64[63:32] ;
-endmodule // splitmix*/
-module defB(reset,clk,addrbB,doutbB,wrB_done);
+input [31:0]ran ;
 
 
  parameter N=2,P=4,M=3;
+ parameter col=1 ;
+ reg  [31:0]col_m0=1,col_m1=2,col_m2=3,col_m3=4;
+ //reg [31:0]col_m[3:0];
+  
+ 
+ 
 //My BramB
 reg [31:0]MEM_B[0:255] ;
    input clk ;
@@ -35,6 +24,8 @@ reg [31:0] dinaB=0;
 output reg [31:0] doutbB=0;
 output reg wrB_done=0 ; 
 input  reset ;
+
+splitmix s1(ran,clk);
 
 assign  clkbB=clk, clkaB=clk ;
 
@@ -68,7 +59,18 @@ end
 always@(posedge clkaB&weaB&(~reset)) begin
    if(addraB<= P*M) begin
       case(addraB+1) 
-	0 : dinaB=0;
+      default dinaB<=ran ;
+      P*col+1 : dinaB <= col_m0;
+      P*col+2 : dinaB <= col_m1;
+      P*col+3 : dinaB <= col_m2;
+      P*col+4 : dinaB <= col_m3;
+      P*(M-1)+1 : dinaB <= 1 ;
+      P*(M-1)+2 : dinaB <= 1 ;
+      P*(M-1)+3 : dinaB <= 1 ;
+      P*(M-1)+4 : dinaB <= 1 ;
+      P*M+1     : dinaB <=0 ;
+      
+	/*0 : dinaB=0;
 	1 : dinaB=10;
 	2 : dinaB=20;
 	3 : dinaB=30;
@@ -81,7 +83,8 @@ always@(posedge clkaB&weaB&(~reset)) begin
 	10 : dinaB=100;
 	11 : dinaB=110;
 	12 : dinaB=120;
-	default : dinaB=0;
+	default : dinaB=0;*/
+	
       endcase // case (addraB)
       addraB =addraB+ 1 ;
       
@@ -94,4 +97,36 @@ always@(posedge clkaB&weaB&(~reset)) begin
      addraB=0;
 end // always@ (posedge clkaB&weaB)
 
+
+
+
+
+// ---------------------------Resetting system---   
+   always@(posedge clk) begin 
+    if(reset==1) begin
+    addraB=0;
+//    addrbB=1;  input of this module, need to be resetted in main module
+      dinaB=0;
+    
+    wrB_done=0;
+    
+    doutbB=0;
+    
+        
+    
+   /* MEM_A[0]=0;
+    MEM_A[1]=0;
+        MEM_A[2]=0;
+        MEM_A[3]=0;
+            MEM_A[4]=0;
+            MEM_A[5]=0;
+                MEM_A[6]=0;
+                MEM_A[7]=0;
+                    MEM_A[8]=0;
+                    MEM_A[9]=0;
+                        MEM_A[10]=0;
+                */                
+    end
+   end
+ 
 endmodule

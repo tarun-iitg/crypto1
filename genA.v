@@ -93,4 +93,34 @@ module defA(reset,clk,addrbA,doutbA,wrA_done);
         endcase // case (addraA)
     end
 
+
+// ---------------------------Resetting system---   
+   always@(posedge clk) begin 
+    if(reset==1) begin
+    addraA=0;
+//    addrbA=1;  input of this module, need to be resetted in main module
+      dinaA=0;
+    
+    wrA_done=0;
+    
+    doutbA=0;
+    
+        
+    
+   /* MEM_A[0]=0;
+    MEM_A[1]=0;
+        MEM_A[2]=0;
+        MEM_A[3]=0;
+            MEM_A[4]=0;
+            MEM_A[5]=0;
+                MEM_A[6]=0;
+                MEM_A[7]=0;
+                    MEM_A[8]=0;
+                    MEM_A[9]=0;
+                        MEM_A[10]=0;
+                */                
+    end
+   end
+ 
+
 endmodule
